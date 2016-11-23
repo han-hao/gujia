@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>异步加载库</title>
+  <!-- load.js（国内） script.js（国外） head.js 都可以帮助我们异步的方式加载JS文件 -->
+  <script src="bower_components/script.js/dist/script.js"></script>
+  <!-- angular-loader的作用就是在使用一些异步加载脚本的库的时候，自动控制依赖顺序 -->
+  <script src="bower_components/angular-loader/angular-loader.js"></script>
+  <script>
+    // 基本语法
+    $script('you want to load', function  () {
+
+    });
+
+    // 测试：
+    console.log($ + '--=---start....');
+    // ./当前这个目录下，
+    // 第一个用法：
+    $script('./bower_components/jquery/dist/jquery.js', function() {
+      // 加载完后打印一下jq的这个对象。看一下，外面里面谁会显示出来。
+     // 加载完jquery文件后才执行（需要一定的时间）
+      console.log($ + '--=---in....');
+    });
+    console.log($ + '--=---end....');
+
+
+    // 第二个用法：第一个参数传个数组，第二个参数传个回调。用这个小工具， 能让其先渲染页面再加载。
+    // 平行加载。
+    $script([
+      './bower_components/angular/angular.js',
+      './bower_components/jquery/dist/jquery.js'
+    ], function() {
+      console.log(angular);
+      console.log(jQuery);
+    });
+    
+    // 存在互相依赖的包的时候会不会有问题？？
+    $script([
+      './bower_components/angular/angular.js',
+      './bower_components/angular-route/angular-route.js',
+      './movie_list/controller.js',
+      './components/http.js',
+      './components/auto-focus.js',
+      './app.js' // 由于这个包比较小，下载完成过后就直接执行，但是依赖的包还没加上，所以会报错。
+    ], function() {
+      console.log(angular);
+      // 手动加载一个app，bootstrap:引导程序；把moviecat应用到document对象上。
+      angular.bootstrap(document, ['moviecat']);
+      // console.log(jQuery);
+    });
+
+
+    // 解决：先加载下载的会比较慢的，一层层嵌套。
+    $script('./bower_components/angular/angular.js', function() {
+      $script('./bower_components/angular-route/angular-route.js', function() {
+      });
+    });
+    //
+  </script>
+</head>
+
+<body>
+</body>
+
+</html>
